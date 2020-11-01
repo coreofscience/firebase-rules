@@ -1,5 +1,6 @@
 {
   "projects": {
-    "firebase-rules": "firebase-rules"
+    "prod": "coreofscience"
+    "dev": "coreofscience-dev"
   }
 }
