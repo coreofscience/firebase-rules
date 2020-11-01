@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "trees": {
+      "$treeId": {
+        "createdDate": { ".validate": true },
+        "files": { ".validate": true },
+        "$other": { ".validate": false },
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}
