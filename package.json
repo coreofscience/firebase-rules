@@ -1,0 +1,29 @@
+{
+  "name": "firebase-rules",
+  "version": "1.0.0",
+  "description": "Firebase rules for coreofscience.",
+  "main": "test.js",
+  "scripts": {
+    "test": "jest",
+    "deploy": "firebase deploy",
+    "firebase": "firebase"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coreofscience/firebase-rules.git"
+  },
+  "keywords": [
+    "firebase",
+    "rules"
+  ],
+  "author": "Oscar Arbeláez",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/coreofscience/firebase-rules/issues"
+  },
+  "homepage": "https://github.com/coreofscience/firebase-rules#readme",
+  "devDependencies": {
+    "firebase-tools": "^8.14.1",
+    "jest": "^26.6.1"
+  }
+}
