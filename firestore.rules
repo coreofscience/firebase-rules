@@ -6,8 +6,10 @@ service cloud.firestore {
       allow read: if false;
     }
     match /results/{document=**} {
-      allow read: if
-          request.time < timestamp.date(2021, 11, 10);
+      allow read: if true;
+    }
+    match /trees/{treeId} {
+      allow read, write: if true
     }
     match /{document=**} {
       allow read, write: if false
