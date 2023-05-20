@@ -4,6 +4,7 @@
   "description": "Firebase rules for coreofscience.",
   "main": "test.js",
   "scripts": {
+    "shipit": "git tag v$(date +%y.%m.%d.%H.%M) && git push --tags",
     "start": "firebase emulators:exec --only firestore 'vitest'",
     "test": "firebase emulators:exec --only firestore 'vitest run'",
     "deploy": "firebase deploy",
@@ -25,6 +26,7 @@
   "homepage": "https://github.com/coreofscience/firebase-rules#readme",
   "devDependencies": {
     "@firebase/rules-unit-testing": "^2.0.7",
+    "firebase": "^9.22.0",
     "firebase-tools": "^8.14.1",
     "vitest": "^0.31.1"
   }
