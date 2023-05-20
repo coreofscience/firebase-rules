@@ -11,6 +11,9 @@ service cloud.firestore {
     match /trees/{treeId} {
       allow read, write: if true
     }
+    match /users/{userId}/trees/{treeId} {
+      allow read, create, delete: if request.auth != null && request.auth.uid == userId
+    }
     match /{document=**} {
       allow read, write: if false
     }
