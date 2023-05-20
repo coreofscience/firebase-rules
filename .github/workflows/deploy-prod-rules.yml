@@ -1,7 +1,7 @@
 name: Deploy rules to prod project
 
 on:
-  create:
+  push:
     tags:
       - v*
 
