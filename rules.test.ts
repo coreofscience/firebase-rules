@@ -81,7 +81,7 @@ describe("tree reads", () => {
 });
 
 describe("tree updates", () => {
-  it("users cannot update their own trees", async () => {
+  it("users can update their own trees", async () => {
     await testEnv.withSecurityRulesDisabled(
       async (ctx) =>
         await setDoc(doc(ctx.firestore(), "users/userId/trees/treeId"), {
@@ -89,7 +89,7 @@ describe("tree updates", () => {
         })
     );
     const db = testEnv.authenticatedContext("userId").firestore();
-    await assertFails(
+    await assertSucceeds(
       setDoc(doc(db, "users/userId/trees/treeId"), {
         this: "is an updated tree",
       })
