@@ -109,3 +109,45 @@ describe("tree deletes", () => {
     await assertSucceeds(deleteDoc(doc(db, "users/userId/trees/treeId")));
   });
 });
+
+describe("pro tree creation", () => {
+  it("cannot be created by unauthenticated users", async () => {
+    const db = testEnv.unauthenticatedContext().firestore();
+    await assertFails(
+      addDoc(collection(db, "users/userId/proTrees"), {
+        this: "is a pro tree"
+      })
+    );
+  });
+
+  it("cannot by created by user without the pro plan", async () => {
+    const db = testEnv.authenticatedContext("userId").firestore();
+    await assertFails(
+      addDoc(collection(db, "users/userId/proTrees"), {
+        this: "is a pro tree"
+      })
+    );
+  });
+
+  it("cannot by created by user with the free plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "free"
+    }).firestore();
+    await assertFails(
+      addDoc(collection(db, "users/userId/proTrees"), {
+        this: "is a pro tree"
+      })
+    );
+  });
+
+  it("can be created by the actual user with pro plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "pro"
+    }).firestore();
+    await assertSucceeds(
+      addDoc(collection(db, "users/userId/proTrees"), {
+        this: "is a pro tree"
+      })
+    );
+  });
+});
