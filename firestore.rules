@@ -17,6 +17,9 @@ service cloud.firestore {
     match /users/{userId}/proTrees/{proTreeId} {
       allow read, write: if request.auth != null && request.auth.uid == userId && request.auth.token.plan == "pro"
     }
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId
+    }
     match /{document=**} {
       allow read, write: if false
     }
