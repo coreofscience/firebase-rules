@@ -1,5 +1,14 @@
 rules_version = '2';
 service cloud.firestore {
+  function signedInAndMatchBetweenUIDAndUserId(userId) {
+    return request.auth != null && request.auth.uid == userId;
+  }
+  function isPro() {
+    let plan = request.auth.token.plan;
+    let isUserPro = plan != "undefined" && plan == "pro";
+    let isTreePro = request.resource.data.isPro;
+    return (!isUserPro && !isTreePro) || (isUserPro && isTreePro);
+  }
   match /databases/{database}/documents {
     match /emails/{email} {
       allow write: if request.resource.data.email.matches(".*@.*");
@@ -12,13 +21,8 @@ service cloud.firestore {
       allow read, write: if true
     }
     match /users/{userId}/trees/{treeId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId
-    }
-    match /users/{userId}/proTrees/{proTreeId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId && request.auth.token.plan == "pro"
-    }
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId
+      allow read, update, delete: if signedInAndMatchBetweenUIDAndUserId(userId);
+      allow create: if signedInAndMatchBetweenUIDAndUserId(userId) && isPro();
     }
     match /{document=**} {
       allow read, write: if false

@@ -10,10 +10,8 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  query,
   setDoc,
   setLogLevel,
-  where,
 } from "firebase/firestore";
 import { readFileSync } from "fs";
 import { afterAll, beforeAll, beforeEach, describe, it } from "vitest";
@@ -36,7 +34,7 @@ beforeEach(async () => {
   await testEnv.clearFirestore();
 });
 
-describe("tree creation", () => {
+describe("creation of pro and non-pro trees", () => {
   it("cannot be created by unauthenticated users", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
     await assertFails(
@@ -45,7 +43,9 @@ describe("tree creation", () => {
   });
 
   it("cannot be created on behalf of someone else", async () => {
-    const db = testEnv.authenticatedContext("userId").firestore();
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic",
+    }).firestore();
     await assertFails(
       addDoc(collection(db, "users/someoneElse/trees"), {
         this: "is a tree",
@@ -53,29 +53,81 @@ describe("tree creation", () => {
     );
   });
 
-  it("can be created by the actual user", async () => {
-    const db = testEnv.authenticatedContext("userId").firestore();
+  it("can be created by the actual user with a basic plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic",
+    }).firestore();
     await assertSucceeds(
       addDoc(collection(db, "users/userId/trees"), {
         this: "is a tree",
+        isPro: false,
       })
     );
   });
+
+  it("can be created by the actual user with a pro plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "pro"
+    }).firestore();
+    await assertSucceeds(
+      addDoc(collection(db, "users/userId/trees"), {
+        isPro: true
+      })
+    );
+  })
+
+  it("basic tree cannot be created by a user with the pro plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "pro"
+    }).firestore();
+    await assertFails(
+      addDoc(collection(db, "users/userId/trees"), {
+        isPro: false
+      })
+    );
+  })
+
+  it("the basic tree can be created by a user with the basic plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic"
+    }).firestore();
+    await assertSucceeds(
+      addDoc(collection(db, "users/userId/trees"), {
+        isPro: false
+      })
+    );
+  })
+
+  it("pro tree cannot be created by a user with the basic plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic"
+    }).firestore();
+    await assertFails(
+      addDoc(collection(db, "users/userId/trees"), {
+        this: "is a pro tree",
+        isPro: true,
+      })
+    );
+  })
 });
 
 describe("tree reads", () => {
-  it("cannot be read by uauthenticated users", async () => {
+  it("cannot be read by unauthenticated users", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
     await assertFails(getDocs(collection(db, "users/userId/trees")));
   });
 
-  it("cannot read someone elses trees", async () => {
-    const db = testEnv.authenticatedContext("userId").firestore();
+  it("cannot read someone else's trees", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic",
+    }).firestore();
     await assertFails(getDocs(collection(db, "users/someoneElse/trees")));
   });
 
   it("users can read their own trees", async () => {
-    const db = testEnv.authenticatedContext("userId").firestore();
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic",
+    }).firestore();
     await assertSucceeds(getDocs(collection(db, "users/userId/trees")));
   });
 });
@@ -107,47 +159,5 @@ describe("tree deletes", () => {
     );
     const db = testEnv.authenticatedContext("userId").firestore();
     await assertSucceeds(deleteDoc(doc(db, "users/userId/trees/treeId")));
-  });
-});
-
-describe("pro tree creation", () => {
-  it("cannot be created by unauthenticated users", async () => {
-    const db = testEnv.unauthenticatedContext().firestore();
-    await assertFails(
-      addDoc(collection(db, "users/userId/proTrees"), {
-        this: "is a pro tree"
-      })
-    );
-  });
-
-  it("cannot by created by user without the pro plan", async () => {
-    const db = testEnv.authenticatedContext("userId").firestore();
-    await assertFails(
-      addDoc(collection(db, "users/userId/proTrees"), {
-        this: "is a pro tree"
-      })
-    );
-  });
-
-  it("cannot by created by user with the free plan", async () => {
-    const db = testEnv.authenticatedContext("userId", {
-      plan: "free"
-    }).firestore();
-    await assertFails(
-      addDoc(collection(db, "users/userId/proTrees"), {
-        this: "is a pro tree"
-      })
-    );
-  });
-
-  it("can be created by the actual user with pro plan", async () => {
-    const db = testEnv.authenticatedContext("userId", {
-      plan: "pro"
-    }).firestore();
-    await assertSucceeds(
-      addDoc(collection(db, "users/userId/proTrees"), {
-        this: "is a pro tree"
-      })
-    );
   });
 });
