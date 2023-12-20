@@ -38,7 +38,10 @@ describe("creation of pro and non-pro trees", () => {
   it("cannot be created by unauthenticated users", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
     await assertFails(
-      addDoc(collection(db, "users/userId/trees"), { this: "is a tree" })
+      addDoc(collection(db, "users/userId/trees"), {
+        this: "is a tree",
+        planId: "basic",
+      })
     );
   });
 
@@ -49,18 +52,7 @@ describe("creation of pro and non-pro trees", () => {
     await assertFails(
       addDoc(collection(db, "users/someoneElse/trees"), {
         this: "is a tree",
-      })
-    );
-  });
-
-  it("can be created by the actual user with a basic plan", async () => {
-    const db = testEnv.authenticatedContext("userId", {
-      plan: "basic",
-    }).firestore();
-    await assertSucceeds(
-      addDoc(collection(db, "users/userId/trees"), {
-        this: "is a tree",
-        isPro: false,
+        planId: "basic",
       })
     );
   });
@@ -71,7 +63,8 @@ describe("creation of pro and non-pro trees", () => {
     }).firestore();
     await assertSucceeds(
       addDoc(collection(db, "users/userId/trees"), {
-        isPro: true
+        this: "is a  pro tree",
+        planId: "pro",
       })
     );
   })
@@ -82,7 +75,8 @@ describe("creation of pro and non-pro trees", () => {
     }).firestore();
     await assertFails(
       addDoc(collection(db, "users/userId/trees"), {
-        isPro: false
+        this: "is a tree",
+        planId: "basic",
       })
     );
   })
@@ -93,7 +87,8 @@ describe("creation of pro and non-pro trees", () => {
     }).firestore();
     await assertSucceeds(
       addDoc(collection(db, "users/userId/trees"), {
-        isPro: false
+        this: "is a tree",
+        planId: "basic",
       })
     );
   })
@@ -105,10 +100,20 @@ describe("creation of pro and non-pro trees", () => {
     await assertFails(
       addDoc(collection(db, "users/userId/trees"), {
         this: "is a pro tree",
-        isPro: true,
+        planId: "pro",
       })
     );
   })
+
+  it("can be created by unauthenticated users", async () => {
+    const db = testEnv.unauthenticatedContext().firestore();
+    await assertSucceeds(
+      addDoc(collection(db, "trees"), {
+        this: "is a tree",
+        planId: null,
+      })
+    );
+  });
 });
 
 describe("tree reads", () => {

@@ -3,11 +3,10 @@ service cloud.firestore {
   function signedInAndMatchBetweenUIDAndUserId(userId) {
     return request.auth != null && request.auth.uid == userId;
   }
-  function isPro() {
+  function validateThePlanWithTheTreeType() {
     let plan = request.auth.token.plan;
-    let isUserPro = plan != "undefined" && plan == "pro";
-    let isTreePro = request.resource.data.isPro;
-    return (!isUserPro && !isTreePro) || (isUserPro && isTreePro);
+    let treeType = request.resource.data.planId;
+    return plan == treeType
   }
   match /databases/{database}/documents {
     match /emails/{email} {
@@ -22,7 +21,7 @@ service cloud.firestore {
     }
     match /users/{userId}/trees/{treeId} {
       allow read, update, delete: if signedInAndMatchBetweenUIDAndUserId(userId);
-      allow create: if signedInAndMatchBetweenUIDAndUserId(userId) && isPro();
+      allow create: if signedInAndMatchBetweenUIDAndUserId(userId) && validateThePlanWithTheTreeType();
     }
     match /{document=**} {
       allow read, write: if false
