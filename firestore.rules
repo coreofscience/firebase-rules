@@ -23,6 +23,14 @@ service cloud.firestore {
       allow read, update, delete: if signedInAndMatchBetweenUIDAndUserId(userId);
       allow create: if signedInAndMatchBetweenUIDAndUserId(userId) && validateThePlanWithTheTreeType();
     }
+    match /users/{userId}/basicAnalysis/{treeId} {
+      allow read, update, delete: if signedInAndMatchBetweenUIDAndUserId(userId);
+      allow create: if signedInAndMatchBetweenUIDAndUserId(userId) && request.auth.token.plan == "basic" && request.resource.data.planId == "basic";
+    }
+    match /users/{userId}/proAnalysis/{treeId} {
+      allow read, update, delete: if signedInAndMatchBetweenUIDAndUserId(userId);
+      allow create: if signedInAndMatchBetweenUIDAndUserId(userId) && request.auth.token.plan == "pro" && request.resource.data.planId == "pro";
+    }
     match /{document=**} {
       allow read, write: if false
     }

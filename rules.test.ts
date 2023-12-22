@@ -69,7 +69,7 @@ describe("creation of pro and non-pro trees", () => {
     );
   })
 
-  it("basic tree cannot be created by a user with the pro plan", async () => {
+  it("basic tree cannot be created by an user with the pro plan", async () => {
     const db = testEnv.authenticatedContext("userId", {
       plan: "pro"
     }).firestore();
@@ -81,7 +81,7 @@ describe("creation of pro and non-pro trees", () => {
     );
   })
 
-  it("the basic tree can be created by a user with the basic plan", async () => {
+  it("the basic tree can be created by an user with the basic plan", async () => {
     const db = testEnv.authenticatedContext("userId", {
       plan: "basic"
     }).firestore();
@@ -93,7 +93,7 @@ describe("creation of pro and non-pro trees", () => {
     );
   })
 
-  it("pro tree cannot be created by a user with the basic plan", async () => {
+  it("pro tree cannot be created by an user with the basic plan", async () => {
     const db = testEnv.authenticatedContext("userId", {
       plan: "basic"
     }).firestore();
@@ -164,5 +164,122 @@ describe("tree deletes", () => {
     );
     const db = testEnv.authenticatedContext("userId").firestore();
     await assertSucceeds(deleteDoc(doc(db, "users/userId/trees/treeId")));
+  });
+});
+
+describe("basic analysis creates", () => {
+  it("cannot be created by unauthenticated user", async () => {
+    const db = testEnv.unauthenticatedContext().firestore();
+    await assertFails(
+      addDoc(collection(db, "users/userId/basicAnalysis"), {
+        createdDate: new Date().getTime(),
+      })
+    );
+  });
+
+  it("cannot be created on behalf of someone else", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic",
+    }).firestore();
+    await assertFails(
+      addDoc(collection(db, "users/someoneElse/basicAnalysis"), {
+        createdDate: new Date().getTime(),
+      })
+    );
+  });
+
+  it("cannot be create by an user with the pro plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "pro"
+    }).firestore()
+    await assertFails(
+      addDoc(collection(db, "users/userId/basicAnalysis"), {
+        createdDate: new Date().getTime(),
+        planId: "pro",
+      })
+    );
+  });
+
+  it("can be created by an user with the basic plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic"
+    }).firestore();
+    await assertSucceeds(
+      addDoc(collection(db, "users/userId/basicAnalysis"), {
+        createdDate: new Date().getTime(),
+        planId: "basic",
+      })
+    );
+  });
+
+  it("basic analysis cannot be created by an user with the pro plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "pro"
+    }).firestore();
+    await assertFails(
+      addDoc(collection(db, "users/userId/basicAnalysis"), {
+        createdDate: new Date().getTime(),
+        planId: "basic",
+      })
+    );
+  });
+
+});
+
+describe("pro analysis creates", () => {
+  it("cannot be created by unauthenticated user", async () => {
+    const db = testEnv.unauthenticatedContext().firestore();
+    await assertFails(
+      addDoc(collection(db, "users/userId/proAnalysis"), {
+        createdDate: new Date().getTime(),
+      })
+    )
+  });
+
+  it("cannot be created on behalf of someone else", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "pro",
+    }).firestore();
+    await assertFails(
+      addDoc(collection(db, "users/someoneElse/proAnalysis"), {
+        createdDate: new Date().getTime(),
+      })
+    );
+  });
+
+  it("cannot be created by an user with the basic plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic"
+    }).firestore()
+    await assertFails(
+      addDoc(collection(db, "users/userId/proAnalysis"), {
+        createdDate: new Date().getTime(),
+        planId: "basic",
+      })
+    )
+  });
+
+  it("can be created by an user with the pro plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "pro"
+    }).firestore();
+    await assertSucceeds(
+      addDoc(collection(db, "users/userId/proAnalysis"), {
+        createdDate: new Date().getTime(),
+        planId: "pro",
+      })
+    );
+  });
+
+  it("pro analysis cannot be created by an user with the basic plan", async () => {
+    const db = testEnv.authenticatedContext("userId", {
+      plan: "basic"
+    }).firestore();
+    await assertFails(
+      addDoc(collection(db, "users/userId/proAnalysis"), {
+        createdDate: new Date().getTime(),
+        planId: "pro",
+      })
+    );
   });
 });
