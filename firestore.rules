@@ -6,7 +6,7 @@ service cloud.firestore {
   function isValidTreePlan() {
     let plan = request.auth.token.plan;
     let treeType = request.resource.data.planId;
-    return plan == treeType
+    return treeType == "basic" || plan == treeType
   }
   match /databases/{database}/documents {
     match /plans/{userId} {
