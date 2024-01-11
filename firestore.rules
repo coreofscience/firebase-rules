@@ -1,35 +1,26 @@
 rules_version = '2';
 service cloud.firestore {
-  function signedInAndMatchBetweenUIDAndUserId(userId) {
+  function signedIn(userId) {
     return request.auth != null && request.auth.uid == userId;
   }
-  function validateThePlanWithTheTreeType() {
+  function isValidTreePlan() {
     let plan = request.auth.token.plan;
     let treeType = request.resource.data.planId;
     return plan == treeType
   }
   match /databases/{database}/documents {
-    match /emails/{email} {
-      allow write: if request.resource.data.email.matches(".*@.*");
-      allow read: if false;
-    }
-    match /results/{document=**} {
-      allow read: if true;
+    match /plans/{userId} {
+      allow read, write: if signedIn(userId);
     }
     match /trees/{treeId} {
-      allow read, write: if true
+      allow read, write: if true;
+    }
+    match /users/{userId} {
+      allow read, write: if signedIn(userId);
     }
     match /users/{userId}/trees/{treeId} {
-      allow read, update, delete: if signedInAndMatchBetweenUIDAndUserId(userId);
-      allow create: if signedInAndMatchBetweenUIDAndUserId(userId) && validateThePlanWithTheTreeType();
-    }
-    match /users/{userId}/basicAnalysis/{treeId} {
-      allow read, update, delete: if signedInAndMatchBetweenUIDAndUserId(userId);
-      allow create: if signedInAndMatchBetweenUIDAndUserId(userId) && request.auth.token.plan == "basic" && request.resource.data.planId == "basic";
-    }
-    match /users/{userId}/proAnalysis/{treeId} {
-      allow read, update, delete: if signedInAndMatchBetweenUIDAndUserId(userId);
-      allow create: if signedInAndMatchBetweenUIDAndUserId(userId) && request.auth.token.plan == "pro" && request.resource.data.planId == "pro";
+      allow read, update: if signedIn(userId);
+      allow create: if signedIn(userId) && isValidTreePlan();
     }
     match /{document=**} {
       allow read, write: if false
