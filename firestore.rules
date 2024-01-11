@@ -1,24 +1,26 @@
 rules_version = '2';
 service cloud.firestore {
+  function signedIn(userId) {
+    return request.auth != null && request.auth.uid == userId;
+  }
+  function isValidTreePlan() {
+    let plan = request.auth.token.plan;
+    let treeType = request.resource.data.planId;
+    return treeType == "basic" || plan == treeType
+  }
   match /databases/{database}/documents {
-    match /emails/{email} {
-      allow write: if request.resource.data.email.matches(".*@.*");
-      allow read: if false;
-    }
-    match /results/{document=**} {
-      allow read: if true;
+    match /plans/{userId} {
+      allow read, write: if signedIn(userId);
     }
     match /trees/{treeId} {
-      allow read, write: if true
-    }
-    match /users/{userId}/trees/{treeId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId
-    }
-    match /users/{userId}/proTrees/{proTreeId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId && request.auth.token.plan == "pro"
+      allow read, write: if true;
     }
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId
+      allow read, write: if signedIn(userId);
+    }
+    match /users/{userId}/trees/{treeId} {
+      allow read, update: if signedIn(userId);
+      allow create: if signedIn(userId) && isValidTreePlan();
     }
     match /{document=**} {
       allow read, write: if false
