@@ -9,7 +9,6 @@ describe("users/{userId}/trees collection", async () => {
 
   it("cannot write without authentication", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
-
     await assertFails(addDoc(collection(db, "users/userId/trees"), {}));
   });
 
@@ -18,9 +17,7 @@ describe("users/{userId}/trees collection", async () => {
       async (ctx) =>
         await setDoc(doc(ctx.firestore(), "users/userId/trees/treeId"), {}),
     );
-
     const db = testEnv.unauthenticatedContext().firestore();
-
     await assertFails(getDoc(doc(db, "users/userId/trees/treeId")));
   });
 
@@ -29,11 +26,9 @@ describe("users/{userId}/trees collection", async () => {
       async (ctx) =>
         await setDoc(doc(ctx.firestore(), "users/userId/trees/treeId"), {}),
     );
-
     const db = testEnv
       .authenticatedContext("userId", { planId: "basic" })
       .firestore();
-
     await assertSucceeds(getDoc(doc(db, "users/userId/trees/treeId")));
   });
 
@@ -46,7 +41,6 @@ describe("users/{userId}/trees collection", async () => {
     const db = testEnv
       .authenticatedContext("userId", { planId: "basic" })
       .firestore();
-
     await assertSucceeds(
       setDoc(doc(db, "users/userId/trees/treeId"), { planId: "basic" }),
     );
@@ -56,7 +50,6 @@ describe("users/{userId}/trees collection", async () => {
     const db = testEnv
       .authenticatedContext("userId", { plan: "basic" })
       .firestore();
-
     await assertFails(addDoc(collection(db, "users/someoneElse/trees"), {}));
   });
 
@@ -68,11 +61,9 @@ describe("users/{userId}/trees collection", async () => {
           {},
         ),
     );
-
     const db = testEnv
       .authenticatedContext("userId", { plan: "basic" })
       .firestore();
-
     await assertFails(getDoc(doc(db, "users/someoneElse/trees/treeId")));
   });
 
@@ -80,7 +71,6 @@ describe("users/{userId}/trees collection", async () => {
     const db = testEnv
       .authenticatedContext("userId", { plan: "pro" })
       .firestore();
-
     await assertSucceeds(
       addDoc(collection(db, "users/userId/trees"), { planId: "basic" }),
     );
@@ -90,7 +80,6 @@ describe("users/{userId}/trees collection", async () => {
     const db = testEnv
       .authenticatedContext("userId", { plan: "basic" })
       .firestore();
-
     await assertFails(
       addDoc(collection(db, "users/userId/trees"), { planId: "pro" }),
     );
@@ -100,7 +89,6 @@ describe("users/{userId}/trees collection", async () => {
     const db = testEnv
       .authenticatedContext("userId", { plan: "basic" })
       .firestore();
-
     await assertSucceeds(
       addDoc(collection(db, "users/userId/trees"), { planId: "basic" }),
     );
@@ -110,7 +98,6 @@ describe("users/{userId}/trees collection", async () => {
     const db = testEnv
       .authenticatedContext("userId", { plan: "pro" })
       .firestore();
-
     await assertSucceeds(
       addDoc(collection(db, "users/userId/trees"), { planId: "pro" }),
     );
@@ -118,7 +105,6 @@ describe("users/{userId}/trees collection", async () => {
 
   it("basic tree can be created by an user witout a plan id", async () => {
     const db = testEnv.authenticatedContext("userId").firestore();
-
     await assertSucceeds(
       addDoc(collection(db, "users/userId/trees"), { planId: "basic" }),
     );
@@ -126,7 +112,11 @@ describe("users/{userId}/trees collection", async () => {
 
   it("can be created by unauthenticated users", async () => {
     const db = testEnv.unauthenticatedContext().firestore();
-
     await assertSucceeds(addDoc(collection(db, "trees"), { planId: null }));
+  });
+
+  it("trees can be created with no plan id", async () => {
+    const db = testEnv.authenticatedContext("userId").firestore();
+    await assertSucceeds(addDoc(collection(db, "users/userId/trees"), {}));
   });
 });

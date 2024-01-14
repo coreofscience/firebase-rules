@@ -5,8 +5,8 @@ service cloud.firestore {
   }
   function isValidTreePlan() {
     let plan = request.auth.token.plan;
-    let treeType = request.resource.data.planId;
-    return treeType == "basic" || plan == treeType
+    let treeType = request.resource.data.get('planId', null);
+    return treeType == null || treeType == "basic" || plan == treeType
   }
   match /databases/{database}/documents {
     match /plans/{userId} {
@@ -21,6 +21,10 @@ service cloud.firestore {
     match /users/{userId}/trees/{treeId} {
       allow read, update: if signedIn(userId);
       allow create: if signedIn(userId) && isValidTreePlan();
+    }
+    match /users/{userId}/proTrees/{treeId} {
+      allow read, update: if signedIn(userId);
+      allow create: if signedIn(userId) && request.auth.token.plan == "pro";
     }
     match /{document=**} {
       allow read, write: if false
