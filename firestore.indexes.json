@@ -1,4 +1,19 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "trees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "result",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "finishedDate",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }
