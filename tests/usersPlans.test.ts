@@ -20,7 +20,7 @@ describe.each(collectionsWithSameBehavior)(
     it("cannot read without authentication", async () => {
       await testEnv.withSecurityRulesDisabled(
         async (ctx) =>
-          await setDoc(doc(ctx.firestore(), `${collectionName}/userId`), {})
+          await setDoc(doc(ctx.firestore(), `${collectionName}/userId`), {}),
       );
 
       const db = testEnv.unauthenticatedContext().firestore();
@@ -35,20 +35,5 @@ describe.each(collectionsWithSameBehavior)(
 
       await assertSucceeds(getDoc(doc(db, `${collectionName}/userId`)));
     });
-
-    it("can write with authentication", async () => {
-      await testEnv.withSecurityRulesDisabled(
-        async (ctx) =>
-          await setDoc(doc(ctx.firestore(), `${collectionName}/userId`), {})
-      );
-
-      const db = testEnv
-        .authenticatedContext("userId", { planId: "basic" })
-        .firestore();
-
-      await assertSucceeds(
-        setDoc(doc(db, `${collectionName}/userId`), {}, { merge: true })
-      );
-    });
-  }
+  },
 );

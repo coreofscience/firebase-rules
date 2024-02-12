@@ -10,7 +10,7 @@ service cloud.firestore {
   }
   match /databases/{database}/documents {
     match /plans/{userId} {
-      allow read, write: if signedIn(userId);
+      allow read: if signedIn(userId);
     }
     match /trees/{treeId} {
       allow read, write: if true;
