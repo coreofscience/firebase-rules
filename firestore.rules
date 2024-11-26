@@ -27,7 +27,7 @@ service cloud.firestore {
       allow create: if signedIn(userId) && request.auth.token.plan == "pro";
     }
     match /subscriptions/{userId} {
-      allow read, write: if signedIn(userId);
+      allow read, write: if signedIn(userId) && request.auth.token.email_verified;
     }
     match /{document=**} {
       allow read, write: if false
